@@ -3,10 +3,10 @@ const path = require('path');
 
 // Đọc cấu hình từ process.env hoặc từ tệp .env cục bộ
 const config = {
-  VITE_GOOGLE_SHEET_WEBHOOK_URL: process.env.VITE_GOOGLE_SHEET_WEBHOOK_URL,
-  VITE_BANK_ID: process.env.VITE_BANK_ID,
-  VITE_BANK_ACCOUNT: process.env.VITE_BANK_ACCOUNT,
-  VITE_BANK_ACCOUNT_NAME: process.env.VITE_BANK_ACCOUNT_NAME
+  VITE_GOOGLE_SHEET_WEBHOOK_URL: process.env.VITE_GOOGLE_SHEET_WEBHOOK_URL ? process.env.VITE_GOOGLE_SHEET_WEBHOOK_URL.trim() : undefined,
+  VITE_BANK_ID: process.env.VITE_BANK_ID ? process.env.VITE_BANK_ID.trim() : undefined,
+  VITE_BANK_ACCOUNT: process.env.VITE_BANK_ACCOUNT ? process.env.VITE_BANK_ACCOUNT.trim() : undefined,
+  VITE_BANK_ACCOUNT_NAME: process.env.VITE_BANK_ACCOUNT_NAME ? process.env.VITE_BANK_ACCOUNT_NAME.trim() : undefined
 };
 
 const envPath = path.join(__dirname, '.env');

@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // Placeholder này sẽ được tiêm URL thực tế bởi build.js khi build
-            const webhookUrl = "__GOOGLE_SHEET_WEBHOOK_URL__";
+            const webhookUrl = "__GOOGLE_SHEET_WEBHOOK_URL__".trim();
 
             if (!webhookUrl || webhookUrl.startsWith("__")) {
                 console.warn("Chưa cấu hình URL webhook Google Sheets. Chạy chế độ demo offline.");
@@ -163,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.reset();
                     closeModalFunc();
                     
-                    // Lấy thông tin tài khoản được tiêm bởi build.js
-                    const bankId = "__BANK_ID__";
-                    const bankAccount = "__BANK_ACCOUNT__";
-                    const bankAccountName = "__BANK_ACCOUNT_NAME__";
+                    // Lấy thông tin tài khoản được tiêm bởi build.js và loại bỏ khoảng trắng thừa
+                    const bankId = "__BANK_ID__".trim();
+                    const bankAccount = "__BANK_ACCOUNT__".trim();
+                    const bankAccountName = "__BANK_ACCOUNT_NAME__".trim();
                     
                     // Hiển thị thông tin chuyển khoản lên UI
                     document.getElementById('paymentBank').textContent = bankId;
