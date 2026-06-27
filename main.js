@@ -84,9 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Trích xuất dữ liệu từ form
             const formData = new FormData(form);
             const data = {
-                fullname: formData.get('fullname') || "",
+                name: formData.get('fullname') || "",
                 phone: formData.get('phone') || "",
-                service: formData.get('service') || ""
+                channel: formData.get('service') || "",
+                interest: formData.get('service') || ""
             };
 
             // Placeholder này sẽ được tiêm URL thực tế bởi build.js khi build
