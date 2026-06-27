@@ -20,10 +20,20 @@ if (!webhookUrl) {
   process.exit(1);
 }
 
-// 2. Thay thế placeholder trong main.js
+// 2. Tạo thư mục dist nếu chưa tồn tại
+const distDir = path.join(__dirname, 'dist');
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir);
+}
+
+// 3. Sao chép index.html và index.css sang dist
+fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(distDir, 'index.html'));
+fs.copyFileSync(path.join(__dirname, 'index.css'), path.join(distDir, 'index.css'));
+
+// 4. Đọc main.js, thay thế placeholder và ghi vào dist/main.js
 const mainJsPath = path.join(__dirname, 'main.js');
 let mainContent = fs.readFileSync(mainJsPath, 'utf8');
 mainContent = mainContent.replace('__GOOGLE_SHEET_WEBHOOK_URL__', webhookUrl);
-fs.writeFileSync(mainJsPath, mainContent);
+fs.writeFileSync(path.join(distDir, 'main.js'), mainContent);
 
-console.log("Đã tiêm thành công Webhook URL vào main.js");
+console.log("Đã build thành công dự án vào thư mục dist!");
