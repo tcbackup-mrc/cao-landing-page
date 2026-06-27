@@ -175,7 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('paymentDescription').textContent = orderId;
                     
                     // Tạo QR thanh toán VietQR động
-                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${bankAccount}-print.png?amount=19000&addInfo=${orderId}&accountName=${encodeURIComponent(bankAccountName)}`;
+                    let bankCodeForQr = bankId;
+                    if (bankId.toLowerCase() === "tpbank") {
+                        bankCodeForQr = "tpb";
+                    }
+                    const qrUrl = `https://img.vietqr.io/image/${bankCodeForQr}-${bankAccount}-print.png?amount=19000&addInfo=${orderId}&accountName=${encodeURIComponent(bankAccountName)}`;
                     document.getElementById('paymentQr').src = qrUrl;
                     
                     // Reset trạng thái hiển thị của Modal thanh toán
