@@ -37,8 +37,14 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir);
 }
 
-// Sao chép tài nguyên tĩnh
-fs.copyFileSync(path.join(__dirname, 'index.html'), path.join(distDir, 'index.html'));
+// Sao chép tài nguyên tĩnh và thực hiện Cache Busting
+const indexHtmlPath = path.join(__dirname, 'index.html');
+let indexContent = fs.readFileSync(indexHtmlPath, 'utf8');
+const version = Date.now();
+indexContent = indexContent.replace('src="main.js"', `src="main.js?v=${version}"`);
+indexContent = indexContent.replace('href="index.css"', `href="index.css?v=${version}"`);
+
+fs.writeFileSync(path.join(distDir, 'index.html'), indexContent);
 fs.copyFileSync(path.join(__dirname, 'index.css'), path.join(distDir, 'index.css'));
 
 // Thay thế các placeholder trong main.js và ghi vào dist
