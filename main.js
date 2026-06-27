@@ -53,6 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const openBtns = document.querySelectorAll('.open-modal-btn');
     const closeBtn = document.getElementById('closeModal');
 
+    const paymentModal = document.getElementById('paymentModal');
+    const closePaymentBtn = document.getElementById('closePaymentModal');
+    const manualConfirmBtn = document.getElementById('manualConfirmBtn');
+
+    let pollingInterval;
+    let countdownInterval;
+
     const openModal = (e) => {
         e.preventDefault();
         modalOverlay.classList.add('active');
@@ -64,9 +71,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     };
 
+    const closePaymentModalFunc = () => {
+        paymentModal.classList.remove('active');
+        document.body.style.overflow = '';
+        clearInterval(pollingInterval);
+        clearInterval(countdownInterval);
+    };
+
     openBtns.forEach(btn => btn.addEventListener('click', openModal));
     
     closeBtn.addEventListener('click', closeModalFunc);
+    closePaymentBtn.addEventListener('click', closePaymentModalFunc);
     
     // Close modal when clicking outside
     modalOverlay.addEventListener('click', (e) => {
@@ -74,6 +89,26 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModalFunc();
         }
     });
+
+    paymentModal.addEventListener('click', (e) => {
+        if(e.target === paymentModal) {
+            closePaymentModalFunc();
+        }
+    });
+
+    // Handle Manual Confirm Click
+    if (manualConfirmBtn) {
+        manualConfirmBtn.addEventListener('click', () => {
+            clearInterval(pollingInterval);
+            clearInterval(countdownInterval);
+            
+            document.getElementById('paymentStatusWrapper').style.display = 'none';
+            document.getElementById('manualConfirmWrapper').style.display = 'none';
+            document.getElementById('zaloGroupWrapper').style.display = 'block';
+            
+            window.open("https://zalo.me/g/sdczb5ehiqm9tyimg1th", "_blank");
+        });
+    }
 
     // Handle Form Submit
     const form = document.querySelector('.booking-form');
@@ -122,18 +157,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.textContent = originalText;
 
                 if (result.status === "success") {
-                    alert('Đặt lịch hẹn thành công! Thông tin của bạn đã được ghi nhận.');
+                    const orderId = result.orderId;
+                    
+                    // Reset form và đóng modal đăng ký
+                    form.reset();
+                    closeModalFunc();
+                    
+                    // Lấy thông tin tài khoản được tiêm bởi build.js
+                    const bankId = "__BANK_ID__";
+                    const bankAccount = "__BANK_ACCOUNT__";
+                    const bankAccountName = "__BANK_ACCOUNT_NAME__";
+                    
+                    // Hiển thị thông tin chuyển khoản lên UI
+                    document.getElementById('paymentBank').textContent = bankId;
+                    document.getElementById('paymentAccount').textContent = bankAccount;
+                    document.getElementById('paymentAccountName').textContent = bankAccountName;
+                    document.getElementById('paymentDescription').textContent = orderId;
+                    
+                    // Tạo QR thanh toán VietQR động
+                    const qrUrl = `https://img.vietqr.io/image/${bankId}-${bankAccount}-print.png?amount=19000&addInfo=${orderId}&accountName=${encodeURIComponent(bankAccountName)}`;
+                    document.getElementById('paymentQr').src = qrUrl;
+                    
+                    // Reset trạng thái hiển thị của Modal thanh toán
+                    document.getElementById('paymentStatusWrapper').style.display = 'block';
+                    document.getElementById('zaloGroupWrapper').style.display = 'none';
+                    document.getElementById('manualConfirmWrapper').style.display = 'none';
+                    document.getElementById('paymentStatusText').innerHTML = `Đang chờ chuyển khoản... (<span id="countdown">30</span>s)`;
+                    
+                    // Mở Modal thanh toán
+                    paymentModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Bắt đầu đếm ngược 30 giây
+                    let secondsLeft = 30;
+                    clearInterval(countdownInterval);
+                    countdownInterval = setInterval(() => {
+                        secondsLeft--;
+                        const countdownEl = document.getElementById('countdown');
+                        if (countdownEl) {
+                            countdownEl.textContent = secondsLeft;
+                        }
+                        
+                        if (secondsLeft <= 0) {
+                            clearInterval(countdownInterval);
+                            // Hiển thị nút xác thực thủ công dự phòng
+                            document.getElementById('manualConfirmWrapper').style.display = 'block';
+                            document.getElementById('paymentStatusText').textContent = "Hết thời gian đếm ngược. Vui lòng xác thực thủ công bên dưới.";
+                        }
+                    }, 1000);
+                    
+                    // Bắt đầu polling truy vấn trạng thái thanh toán từ Google Sheets cứ mỗi 3 giây
+                    clearInterval(pollingInterval);
+                    pollingInterval = setInterval(async () => {
+                        try {
+                            const checkUrl = `${webhookUrl}?orderId=${orderId}`;
+                            const checkResponse = await fetch(checkUrl, { method: 'GET' });
+                            const checkResult = await checkResponse.json();
+                            
+                            if (checkResult.status === "success" && checkResult.paymentStatus === "Đã thanh toán") {
+                                // Xác thực thanh toán thành công tự động
+                                clearInterval(pollingInterval);
+                                clearInterval(countdownInterval);
+                                
+                                document.getElementById('paymentStatusWrapper').style.display = 'none';
+                                document.getElementById('manualConfirmWrapper').style.display = 'none';
+                                document.getElementById('zaloGroupWrapper').style.display = 'block';
+                            }
+                        } catch (err) {
+                            console.error("Lỗi khi polling trạng thái thanh toán:", err);
+                        }
+                    }, 3000);
+                    
                 } else {
                     console.error("Lỗi phản hồi từ Google Apps Script:", result.message);
                     alert('Không thể ghi nhận lịch hẹn trên Google Sheet. Vui lòng thử lại sau.');
                 }
             } catch (error) {
                 console.error("Lỗi khi gửi dữ liệu lên Google Sheet:", error);
-                alert('Đặt lịch hẹn thành công! Cảm ơn bạn đã đăng ký.');
+                alert('Có lỗi hệ thống xảy ra. Vui lòng thử lại sau.');
             }
-
-            closeModalFunc();
-            form.reset();
         });
     }
 });

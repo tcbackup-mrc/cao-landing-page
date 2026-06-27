@@ -224,6 +224,55 @@
         </div>
     </div>
 
+    <!-- PAYMENT MODAL -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal" style="max-width: 420px; padding: 25px;">
+            <button class="modal-close" id="closePaymentModal">&times;</button>
+            <h3 class="modal-title" style="margin-bottom: 5px;">Thanh Toán Đăng Ký</h3>
+            <p class="body-text-sm text-center mb-6" style="color: #666; font-size: 13px;">Vui lòng quét mã QR dưới đây để hoàn tất đăng ký của bạn.</p>
+            
+            <div class="qr-container" style="text-align: center; margin-bottom: 20px;">
+                <img id="paymentQr" src="" alt="VietQR Payment" style="max-width: 220px; border-radius: 8px; border: 1px solid #eaeaea; padding: 8px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            </div>
+
+            <div class="payment-info" style="font-size: 13px; line-height: 1.8; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #f0f0f0;">
+                <div style="display: flex; justify-content: space-between;"><strong>Ngân hàng:</strong> <span id="paymentBank">TPBank</span></div>
+                <div style="display: flex; justify-content: space-between;"><strong>Số tài khoản:</strong> <span id="paymentAccount">00003058866</span></div>
+                <div style="display: flex; justify-content: space-between;"><strong>Tên chủ TK:</strong> <span id="paymentAccountName">CAO FINE JEWELRY</span></div>
+                <div style="display: flex; justify-content: space-between;"><strong>Số tiền:</strong> <span style="color: #c99c5c; font-weight: 600;">19.000đ</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <strong>Nội dung CK:</strong> 
+                    <span id="paymentDescription" style="color: #c99c5c; font-weight: bold; background: #fff3cd; padding: 2px 8px; border-radius: 4px; border: 1px solid #ffeeba; font-family: monospace; font-size: 14px;">AIXXXXXXXXXX</span>
+                </div>
+            </div>
+
+            <div id="paymentStatusWrapper" style="text-align: center; margin-bottom: 10px; background: #fffdf6; border: 1px solid #fff3cd; padding: 10px; border-radius: 6px;">
+                <div class="spinner" style="display: inline-block; width: 16px; height: 16px; border: 2px solid #eaeaea; border-top-color: #c99c5c; border-radius: 50%; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 8px;"></div>
+                <span id="paymentStatusText" style="font-size: 13px; color: #856404; vertical-align: middle; font-weight: 500;">Đang chờ chuyển khoản... (<span id="countdown">30</span>s)</span>
+            </div>
+
+            <!-- Nút vào nhóm Zalo, ban đầu ẩn -->
+            <div id="zaloGroupWrapper" style="display: none; text-align: center; margin-top: 15px;">
+                <p style="color: #28a745; font-weight: bold; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span style="font-size: 18px;">✓</span> Xác thực thanh toán thành công!
+                </p>
+                <a id="zaloLink" href="https://zalo.me/g/sdczb5ehiqm9tyimg1th" target="_blank" class="btn btn-primary" style="display: block; text-decoration: none; text-align: center; padding: 10px 0; background: #0068ff; border-color: #0068ff; border-radius: 4px; font-weight: 500; font-size: 14px; color: #fff; box-shadow: 0 4px 10px rgba(0,104,255,0.25);">Tham Gia Nhóm Zalo Hỗ Trợ</a>
+            </div>
+
+            <!-- Nút xác thực thủ công, ban đầu ẩn -->
+            <div id="manualConfirmWrapper" style="display: none; text-align: center; margin-top: 15px; border-top: 1px dashed #eee; padding-top: 15px;">
+                <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Chưa nhận được phản hồi tự động?</p>
+                <button id="manualConfirmBtn" class="btn btn-secondary w-full" style="font-size: 13px; padding: 10px 0; font-weight: 500; background: #6c757d; border-color: #6c757d; color: #fff; cursor: pointer; border-radius: 4px; transition: all 0.2s;">Tôi đã chuyển khoản (Xác nhận thủ công)</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
     <script src="main.js"></script>
 </body>
 </html>
