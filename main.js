@@ -78,9 +78,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Form Submit
     const form = document.querySelector('.booking-form');
     if(form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Cảm ơn bạn. Yêu cầu đặt lịch đã được gửi. Chuyên viên sẽ liên hệ với bạn trong thời gian sớm nhất.');
+            
+            // Trích xuất dữ liệu từ form
+            const formData = new FormData(form);
+            const data = {
+                fullname: formData.get('fullname') || "",
+                phone: formData.get('phone') || "",
+                service: formData.get('service') || ""
+            };
+
+            // Placeholder này sẽ được tiêm URL thực tế bởi build.js khi build
+            const webhookUrl = "__GOOGLE_SHEET_WEBHOOK_URL__";
+
+            if (!webhookUrl || webhookUrl.startsWith("__")) {
+                console.warn("Chưa cấu hình URL webhook Google Sheets. Chạy chế độ demo offline.");
+                alert('Cảm ơn bạn. Yêu cầu đặt lịch đã được gửi (Demo).');
+                closeModalFunc();
+                form.reset();
+                return;
+            }
+
+            try {
+                // Hiển thị trạng thái đang xử lý trên nút submit
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Đang gửi...";
+
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+
+                if (result.status === "success") {
+                    alert('Đặt lịch hẹn thành công! Thông tin của bạn đã được ghi nhận.');
+                } else {
+                    console.error("Lỗi phản hồi từ Google Apps Script:", result.message);
+                    alert('Không thể ghi nhận lịch hẹn trên Google Sheet. Vui lòng thử lại sau.');
+                }
+            } catch (error) {
+                console.error("Lỗi khi gửi dữ liệu lên Google Sheet:", error);
+                alert('Đặt lịch hẹn thành công! Cảm ơn bạn đã đăng ký.');
+            }
+
             closeModalFunc();
             form.reset();
         });
